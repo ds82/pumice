@@ -27,7 +27,7 @@ class Pumice {
 
 	private function __construct( $modules ) {
 
-		$this->binder = new Binder();
+		$this->binder = new Binder($this);
 
 		foreach($modules AS $module) {
 			if (!is_a($module, 'pumice\Module'))

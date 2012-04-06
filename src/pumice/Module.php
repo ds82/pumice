@@ -18,8 +18,6 @@ namespace pumice;
 
 abstract class Module {
 	
-	const SINGLETON = 1;
-
 	private $binder;
 
 	function setBinder($binder) {

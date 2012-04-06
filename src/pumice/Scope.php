@@ -18,6 +18,8 @@ namespace pumice;
 
 class Scope {
 
+	const SINGLETON = 1;
+
 	private $scope;
 
 	public function in( $scope ) {

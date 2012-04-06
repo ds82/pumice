@@ -17,15 +17,23 @@
 namespace pumice;
 
 use \InvalidArgumentException;
+use \RuntimeException;
 
 class Binding {
 	
 	const CLAZZ = 1;
 	const INSTANCE = 2;
 
+	private $injector;
+
 	private $scope;
 	private $binding;
 	private $is;
+	private $instance = null;
+
+	public function __construct(Pumice $injector) {
+		$this->injector = $injector;
+	}
 
 	public function to( $impl ) {
 		
@@ -35,17 +43,35 @@ class Binding {
 		return $this->scope;
 	}
 
+	private function check() {
+		if ($this->instance === null && 
+			$this->scope()->is(Scope::SINGLETON) && 
+			!$this->is(self::INSTANCE))
+			
+		$this->instance = $this->injector->getInstance($this->binding);
+	}
+
 	private function examine( $impl ) {
 
 		if (is_object($impl) && !is_string($impl))
 			$this->is = self::INSTANCE;
-		else if (is_string($impl) && !is_object($impl))
+		else if (is_string($impl) && !is_object($impl)) {
+			if (!class_exists($impl))
+				throw new InvalidArgumentException('The class you tried to bind does not exists: ' . $impl);
 			$this->is = self::CLAZZ;
+		}
+			
 		else throw new InvalidArgumentException('Invalid argument passed to Binding->to(): ' . var_export($impl));
 	}
 
 	public function get() {
-		return $this->binding;
+		$this->check();
+		if ($this->scope()->is(Scope::SINGLETON) && $this->is(self::INSTANCE))
+			return $this->binding;
+		else if ($this->scope()->is(Scope::SINGLETON) && $this->is(self::CLAZZ)) {
+			return $this->instance;
+		}
+		else return $this->injector->getInstance($this->binding);
 	}
 
 	public function scope() {

@@ -16,13 +16,15 @@
 */
 namespace pumice;
 
+use pumice\Scope;
+
 class MyConcreteModule extends Module {
 	public function configure() {
 
 		$data = new \examples\DataClass();
 		$data->value = 10;
 
-		$this->bind('examples\DataClass')->to($data)->in(self::SINGLETON);
+		$this->bind('examples\DataClass')->to($data)->in(Scope::SINGLETON);
 	}
 }
 
@@ -57,10 +59,17 @@ class PumiceTest extends \PHPUnit_Framework_TestCase {
 	public function testGetInstanceFromClassWithoutBindingButParameter() {
 
 		$uut = Pumice::createInjector($this->module);
-		$some = $uut->getInstance('examples\AnotherClass');
+		$a = $uut->getInstance('examples\DataClass');
+		$b = $uut->getInstance('examples\DataClass');
 
-		$this->assertTrue(is_a($some, 'examples\AnotherClass'));
+		$a->value = 10;
+		$b->value = 20;
 
+		$this->assertTrue(is_a($a, 'examples\DataClass'));
+		$this->assertTrue(is_a($b, 'examples\DataClass'));
+		$this->assertNotSame($a, $b);
+		$this->assertEquals(10, $a->value);
+		$this->assertEquals(20, $b->value);
 	}
 
 	public function testGetInstanceFromClassWithObjectBindingWithoutParameter() {

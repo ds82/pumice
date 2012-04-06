@@ -19,9 +19,12 @@ namespace pumice;
 class BinderTest extends \PHPUnit_Framework_TestCase {
 
 	private $uut;
+	private $injector;
 
 	public function setUp() {
-		$this->uut = new Binder();
+		$this->injector = 
+			$this->getMock('pumice\Pumice', array('getInstance'), array(), '', false);		
+		$this->uut = new Binder($this->injector);
 	}
 
 	/**
