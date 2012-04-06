@@ -34,8 +34,10 @@ class Binder {
 
 	public function bind( $clazz ) {
 		
+		/*
 		if (!class_exists($clazz))
 			throw new InvalidArgumentException('You tried to bind a class that does not exist: ' . $clazz);
+		*/
 
 		$binding = new Binding($this->injector);
 		$this->binds[$clazz] = $binding;
