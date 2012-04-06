@@ -44,6 +44,14 @@ class Binder {
 		return $binding;
 	}
 
+	public function getBindingFor( $clazz ) {
+
+		$binding = $this->binds[$clazz];
+
+		if ($binding->scope()->is(Module::SINGLETON))
+			return $binding->get();
+	}
+
 
 
 }

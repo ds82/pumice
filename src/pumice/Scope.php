@@ -18,10 +18,15 @@ namespace pumice;
 
 class Scope {
 
-	public function in( $scope ) {
+	private $scope;
 
+	public function in( $scope ) {
+		$this->scope = $scope;
 	}
 
+	public function is( $scope ) {
+		return $this->scope === $scope;
+	}
 }
 
 

@@ -16,14 +16,44 @@
 */
 namespace pumice;
 
+use \InvalidArgumentException;
+
 class Binding {
 	
+	const CLAZZ = 1;
+	const INSTANCE = 2;
+
 	private $scope;
+	private $binding;
+	private $is;
 
 	public function to( $impl ) {
 		
-		$this->scope = new Scope( $imp );
+		$this->examine($impl);
+		$this->binding = $impl;
+		$this->scope = new Scope( $impl );
 		return $this->scope;
+	}
+
+	private function examine( $impl ) {
+
+		if (is_object($impl) && !is_string($impl))
+			$this->is = self::INSTANCE;
+		else if (is_string($impl) && !is_object($impl))
+			$this->is = self::CLAZZ;
+		else throw new InvalidArgumentException('Invalid argument passed to Binding->to(): ' . var_export($impl));
+	}
+
+	public function get() {
+		return $this->binding;
+	}
+
+	public function scope() {
+		return $this->scope;
+	}
+
+	public function is( $is ) {
+		return $this->is === $is;
 	}
 
 }

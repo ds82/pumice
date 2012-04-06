@@ -16,6 +16,17 @@
 */
 namespace pumice;
 
+class MyConcreteModule extends Module {
+	public function configure() {
+
+		$data = new \examples\DataClass();
+		$data->value = 10;
+
+		$this->bind('examples\DataClass')->to($data)->in(self::SINGLETON);
+	}
+}
+
+
 class PumiceTest extends \PHPUnit_Framework_TestCase {
 
 	private $module;
@@ -23,15 +34,14 @@ class PumiceTest extends \PHPUnit_Framework_TestCase {
 	public function setUp() {
 
 		$this->module = $this->getMock('pumice\Module', array('setBinder', 'configure'));
-		$this->module->expects( $this->once() )
-			->method( 'configure' );
-		$this->module->expects( $this->once() )
-			->method( 'setBinder' );
-
 	}
 
 	public function testStaticConstruct() {
 		
+		$this->module->expects( $this->once() )
+			->method( 'configure' );
+		$this->module->expects( $this->once() )
+			->method( 'setBinder' );
 		$uut = Pumice::createInjector($this->module);
 	}
 
@@ -51,6 +61,15 @@ class PumiceTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertTrue(is_a($some, 'examples\AnotherClass'));
 
+	}
+
+	public function testGetInstanceFromClassWithObjectBindingWithoutParameter() {
+
+		$module = new MyConcreteModule();
+		$uut = Pumice::createInjector($module);
+
+		$data = $uut->getInstance('examples\DataClass');
+		$this->assertEquals(10, $data->value);
 	}
 
 

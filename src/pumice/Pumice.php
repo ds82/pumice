@@ -50,6 +50,8 @@ class Pumice {
 		
 		if (!$this->binder->hasBinding($clazz)) {
 			return $this->createInstance($clazz);
+		} else {
+			return $this->binder->getBindingFor($clazz);
 		}
 	}
 
