@@ -18,13 +18,20 @@ namespace pumice;
 
 use pumice\Scope;
 
-class MyConcreteModule extends Module {
+class ConcreteModule extends Module {
+	
+	private $binding;
+	private $impl;
+	private $singleton;
+
+	public function __construct($binding, $impl, $singleton = FALSE) {
+		$this->binding = $binding;
+		$this->impl = $impl;
+		$this->singleton = $singleton;
+	}
 	public function configure() {
-
-		$data = new \examples\DataClass();
-		$data->value = 10;
-
-		$this->bind('examples\DataClass')->to($data)->in(Scope::SINGLETON);
+		$binding = $this->bind($this->binding)->to($this->impl);
+		if ($this->singleton) $binding->in(Scope::SINGLETON);
 	}
 }
 
@@ -74,14 +81,33 @@ class PumiceTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetInstanceFromClassWithObjectBindingWithoutParameter() {
 
-		$module = new MyConcreteModule();
+		$binding = 'examples\DataClass';
+
+		$mock = new \examples\DataClass();
+		$mock->value = 10;
+
+		$module = new ConcreteModule($binding, $mock, TRUE);
 		$uut = Pumice::createInjector($module);
 
 		$data = $uut->getInstance('examples\DataClass');
 		$this->assertEquals(10, $data->value);
 	}
 
-	
+	public function testGetInstanceFromNonExistentClazzWithExistentBinding() {
+
+		$bind = 'does\not\Exist';
+		$impl = 'examples\DataClass';
+
+		$module = new ConcreteModule($bind, $impl);
+		$uut = Pumice::createInjector($module);
+
+		$a = $uut->getInstance($bind);
+		$this->assertTrue(is_a($a, $impl), 'assertion failed, class was: ' . get_class($a) . ' instead of ' . $impl);
+
+		$a->value = 10;
+		$b = $uut->getInstance($bind);
+		$this->assertEquals(null, $b->value);
+	}
 
 
 }

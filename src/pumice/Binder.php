@@ -54,9 +54,7 @@ class Binder {
 	public function getBindingFor( $clazz ) {
 
 		$binding = $this->binds[$clazz];
-
-		if ($binding->scope()->is(Scope::SINGLETON))
-			return $binding->get();
+		return $binding->get();
 	}
 
 

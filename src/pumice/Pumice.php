@@ -45,10 +45,9 @@ class Pumice {
 
 	public function getInstance( $clazz ) {
 		
-		if (!class_exists( $clazz ))
-			throw new InvalidArgumentException('Could not find class: ' . $clazz);
-		
 		if (!$this->binder->hasBinding($clazz)) {
+			if (!class_exists( $clazz ))
+				throw new InvalidArgumentException('Could not find class: ' . $clazz);
 			return $this->createInstance($clazz);
 		} else {
 			return $this->binder->getBindingFor($clazz);
