@@ -6,7 +6,7 @@ class DataClass {
 	public $value;
 
 	/**
-	 * @value("DefaultValueDataClass")
+	 * @DefaultValueDataClass("value")
 	 */
 	public function __construct($value = null) {
 		$this->value = $value;
