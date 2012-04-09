@@ -4,7 +4,7 @@ set_include_path(
 	dirname(__FILE__) . '/src' . PATH_SEPARATOR .
 	dirname(__FILE__) . '/test' . PATH_SEPARATOR .
 	dirname(__FILE__) . '/examples' . PATH_SEPARATOR .
-	dirname(__FILE__) . '/lib/phannotation/src/phannotation'
+	dirname(__FILE__) . '/lib/phannotation/src'
 );
 function autoload($clazz) {
 	$load = preg_replace('/\\\/', DIRECTORY_SEPARATOR, $clazz) . '.php';
