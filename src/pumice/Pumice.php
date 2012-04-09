@@ -76,8 +76,9 @@ class Pumice {
 
 		$args = array();
 		foreach( $parameter AS $dep ) {
-			//echo 'instantiateParameter: ' . $dep->getClass()->getName();
-			$args[] = $this->getInstance($dep->getClass()->getName());
+			$clazz = $dep->getClass();
+			if ($clazz !== null && is_object($clazz))
+				$args[] = $this->getInstance($dep->getClass()->getName());
 		}
 		return $args;
 	}
