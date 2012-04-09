@@ -35,9 +35,28 @@ class ConcreteModule extends Module {
 	}
 }
 
+class ConcreteMultiModule extends Module {
+
+	private $config;
+
+	public function __construct($config) {
+		if (!is_array($config)) throw new \RuntimeException('Please pass an array of config objects to this module');
+		$this->config = $config;
+	}
+
+	public function configure() {
+		foreach($this->config AS $conf) {
+			if (is_a($conf, '\stdClass')) {
+				$binding = $this->bind($conf->binding)->to($conf->impl);
+				if ($conf->singleton) $binding->in(SCOPE::SINGLETON);
+			}
+		}
+	}
+
+}
+
 
 class PumiceTest extends \PHPUnit_Framework_TestCase {
-
 	private $module;
 
 	public function setUp() {
@@ -107,6 +126,27 @@ class PumiceTest extends \PHPUnit_Framework_TestCase {
 		$a->value = 10;
 		$b = $uut->getInstance($bind);
 		$this->assertEquals(null, $b->value);
+	}
+
+	public function testClassWithMultipleDependencies() {
+
+		$config = array();
+
+		$conf = new \stdClass();
+		$conf->binding = 'examples\DataClass';
+		$conf->impl = 'examples\DataClass';
+		$conf->singleton = TRUE;
+		$config[] = $conf;
+
+		
+		$uut = Pumice::createInjector(new ConcreteMultiModule($config));
+
+
+		$data = $uut->getInstance('examples\DataClass');
+		$data->value = 10;
+
+		$third = $uut->getInstance('examples\ThirdClass');
+		$this->assertEquals(10, $third->c1->data->value);
 	}
 
 

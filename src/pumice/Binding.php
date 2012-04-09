@@ -48,7 +48,7 @@ class Binding {
 			$this->scope()->is(Scope::SINGLETON) && 
 			!$this->is(self::INSTANCE))
 			
-		$this->instance = $this->injector->getInstance($this->binding);
+		$this->instance = $this->injector->getInstance($this->binding, TRUE);
 	}
 
 	private function examine( $impl ) {

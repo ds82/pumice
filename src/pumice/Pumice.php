@@ -43,19 +43,25 @@ class Pumice {
 		return new Pumice(func_get_args());
 	}
 
-	public function getInstance( $clazz ) {
+	public function getInstance( $clazz, $ignoreBinding = FALSE ) {
 		
-		if (!$this->binder->hasBinding($clazz)) {
-			if (!class_exists( $clazz ))
-				throw new InvalidArgumentException('Could not find class: ' . $clazz);
+		//echo 'getInstance: ' . $clazz . PHP_EOL;
+		if ($ignoreBinding || !$this->binder->hasBinding($clazz)) {
+			//echo 'no binding for ' . $clazz . PHP_EOL;
 			return $this->createInstance($clazz);
 		} else {
+			//echo 'found binding for ' . $clazz . PHP_EOL;
 			return $this->binder->getBindingFor($clazz);
 		}
 	}
 
 	private function createInstance( $clazz ) {
-		
+
+		if (!class_exists( $clazz )) {
+			throw new InvalidArgumentException('Could not find class ' . $clazz);
+		}
+
+		//echo 'createInstance: ' . $clazz . PHP_EOL;
 		$reflection = new ReflectionClass($clazz);
 		$constructor = $reflection->getConstructor();
 		if ( $constructor === null || 0 === $constructor->getNumberOfParameters() )
@@ -70,7 +76,8 @@ class Pumice {
 
 		$args = array();
 		foreach( $parameter AS $dep ) {
-			$args[] = $this->createInstance($dep->getClass()->getName());
+			//echo 'instantiateParameter: ' . $dep->getClass()->getName();
+			$args[] = $this->getInstance($dep->getClass()->getName());
 		}
 		return $args;
 	}
