@@ -1,0 +1,3 @@
+[submodule "lib/phannotation"]
+	path = lib/phannotation
+	url = git@github.com:ds82/phannotation.git
