@@ -25,6 +25,9 @@ class Pumice {
 	private $binder;
 	private $modules = array();
 
+	private $reflectionCache = array();
+	private $annotationCache = array();
+
 	private function __construct( $modules ) {
 
 		$this->binder = new Binder($this);
@@ -41,6 +44,26 @@ class Pumice {
 
 	public static function createInjector() {
 		return new Pumice(func_get_args());
+	}
+
+	private function getReflection( $clazz ) {
+		if (in_array($clazz, $this->reflectionCache))
+			return $this->reflectionCache[$clazz];
+		else {
+			$reflection = new ReflectionClass($clazz);
+			$this->reflectionCache[$clazz] = $reflection;
+			return $reflection;
+		}
+	}
+
+	private function getAnnotation( $clazz ) {
+		if (in_array($clazz, $this->annotationCache))
+			return $this->annotationCache[$clazz];
+		else {
+			$annotation = new Phannotation($this->getReflection($clazz));
+			$this->annotation[$clazz] = $annotation;
+			return $annotation;
+		}
 	}
 
 	public function getInstance( $clazz, $ignoreBinding = FALSE ) {
@@ -62,7 +85,7 @@ class Pumice {
 		}
 
 		//echo 'createInstance: ' . $clazz . PHP_EOL;
-		$reflection = new ReflectionClass($clazz);
+		$reflection = $this->getReflection($clazz);
 		$constructor = $reflection->getConstructor();
 		if ( $constructor === null || 0 === $constructor->getNumberOfParameters() )
 			return $reflection->newInstance();
@@ -76,6 +99,7 @@ class Pumice {
 
 		$args = array();
 		foreach( $parameter AS $dep ) {
+			$annotation = $this->getAnnotation($dep);
 			$clazz = $dep->getClass();
 			if ($clazz !== null && is_object($clazz))
 				$args[] = $this->getInstance($dep->getClass()->getName());
