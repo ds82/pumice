@@ -7,7 +7,7 @@ set_include_path(
 );
 function autoload($clazz) {
 	$load = preg_replace('/\\\/', DIRECTORY_SEPARATOR, $clazz) . '.php';
-	@include_once($load);
+	include_once($load);
 }
 spl_autoload_register('autoload');
 ?>
