@@ -55,6 +55,31 @@ class ConcreteMultiModule extends Module {
 
 }
 
+class ConcreteMultiAnnotationModule extends ConcreteMultiModule {
+
+	private $annotations;
+
+	public function __construct($config, $annotations) {
+		parent::__construct($config);
+		if (!is_array($annotations)) throw new \RuntimeException('Please pass an array of config objects to this module');
+		$this->annotations = $annotations;
+	}
+
+	public function configure() {
+		parent::configure();
+
+		$this->bindAnnotation('Annotation')->to('ClassOrObject')->in(Scope::SINGLETON);
+		$this->bindAnnotation('Annotation')->toValue('StringOrIntOrWhatEver');
+
+		foreach($this->annotations AS $conf) {
+			if (is_a($conf, '\stdClass')) {
+				$binding = $this->bind($conf->binding)->to($conf->impl);
+				if ($conf->singleton) $binding->in(SCOPE::SINGLETON);
+			}
+		}
+	}
+
+}
 
 class PumiceTest extends \PHPUnit_Framework_TestCase {
 	private $module;
