@@ -23,6 +23,7 @@ class Binding {
 	
 	const CLAZZ = 1;
 	const INSTANCE = 2;
+	const VALUE = 3;
 
 	private $injector;
 
@@ -39,8 +40,14 @@ class Binding {
 		
 		$this->examine($impl);
 		$this->binding = $impl;
-		$this->scope = new Scope( $impl );
+		$this->scope = new Scope();
 		return $this->scope;
+	}
+
+	public function toValue( $value ) {
+		$this->scope = new Scope();
+		$this->is = self::VALUE;
+		$this->instance = $value;
 	}
 
 	private function check() {
@@ -66,7 +73,9 @@ class Binding {
 
 	public function get() {
 		$this->check();
-		if ($this->scope()->is(Scope::SINGLETON) && $this->is(self::INSTANCE))
+		if ($this->is(self::VALUE)) {
+			return $this->instance;
+		} else if ($this->scope()->is(Scope::SINGLETON) && $this->is(self::INSTANCE))
 			return $this->binding;
 		else if ($this->scope()->is(Scope::SINGLETON) && $this->is(self::CLAZZ)) {
 			return $this->instance;

@@ -23,6 +23,7 @@ class Binder {
 
 	private $injector;
 	private $binds = array();
+	private $annoationCache = array();
 
 	public function __construct(Pumice $injector) {
 		$this->injector = $injector;
@@ -42,6 +43,25 @@ class Binder {
 		$binding = new Binding($this->injector);
 		$this->binds[$clazz] = $binding;
 		return $binding;
+	}
+
+	public function setAnnotations( $clazz, $method, $annotations ) {
+		$this->annoationCache[$clazz][$method] = array_flip($annotations);
+	}
+
+	public function hasAnnotationBinding( $clazz, $method, $variable ) {
+		$exists = array_key_exists($variable, $this->annoationCache[$clazz][$method]);
+		if ($exists) {
+			$binding = $this->annoationCache[$clazz][$method][$variable];
+			if ($this->hasBinding($binding)) return true;
+		}
+		return false;
+	}
+
+	public function getBindingForAnnotation( $clazz, $method, $variable ) {
+		$binding = $this->annoationCache[$clazz][$method][$variable];
+		if ($this->hasBinding($binding)) return $this->getBindingFor($binding);
+		else throw new \RuntimeException('no binding found for ' . $variable);
 	}
 
 	public function bindAnnotation( $annoation ) {

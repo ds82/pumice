@@ -19,6 +19,7 @@ namespace pumice;
 use \InvalidArgumentException;
 use \ReflectionClass;
 use pumice\Module;
+use phannotation\Phannotation;
 
 class Pumice {
 
@@ -26,7 +27,7 @@ class Pumice {
 	private $modules = array();
 
 	private $reflectionCache = array();
-	private $annotationCache = array();
+	private $annotationClassCache = array();
 
 	private function __construct( $modules ) {
 
@@ -47,21 +48,29 @@ class Pumice {
 	}
 
 	private function getReflection( $clazz ) {
-		if (in_array($clazz, $this->reflectionCache))
-			return $this->reflectionCache[$clazz];
+		
+		if (is_object($clazz)) $key = get_class($clazz);
+		else $key = $clazz;
+
+		if (in_array($key, $this->reflectionCache))
+			return $this->reflectionCache[$key];
 		else {
 			$reflection = new ReflectionClass($clazz);
-			$this->reflectionCache[$clazz] = $reflection;
+			$this->reflectionCache[$key] = $reflection;
 			return $reflection;
 		}
 	}
 
 	private function getAnnotation( $clazz ) {
-		if (in_array($clazz, $this->annotationCache))
-			return $this->annotationCache[$clazz];
+
+		if (is_object($clazz)) $key = get_class($clazz);
+		else $key = $clazz;
+
+		if (in_array($key, $this->annotationClassCache))
+			return $this->annotationClassCache[$key];
 		else {
 			$annotation = new Phannotation($this->getReflection($clazz));
-			$this->annotation[$clazz] = $annotation;
+			$this->annotationClassCache[$key] = $annotation;
 			return $annotation;
 		}
 	}
@@ -90,19 +99,31 @@ class Pumice {
 		if ( $constructor === null || 0 === $constructor->getNumberOfParameters() )
 			return $reflection->newInstance();
 		else {
-			$args = $this->instantiateParameter($constructor->getParameters());
+			$methodName = '__construct';
+			// TODO do this only once per clazz
+			$annotations = $this->getAnnotation($clazz)->constructor()->annotations();
+			$this->binder->setAnnotations($clazz, $methodName, $annotations);
+
+			$args = $this->instantiateParameter($clazz, $methodName, $constructor->getParameters());
 			return $reflection->newInstanceArgs($args);
 		}
 	}
 
-	public function instantiateParameter( $parameter ) {
+	public function instantiateParameter( $clazz, $method, $parameter ) {
 
 		$args = array();
 		foreach( $parameter AS $dep ) {
-			$annotation = $this->getAnnotation($dep);
-			$clazz = $dep->getClass();
-			if ($clazz !== null && is_object($clazz))
-				$args[] = $this->getInstance($dep->getClass()->getName());
+			$name = $dep->getName();
+			if ($this->binder->hasAnnotationBinding($clazz,$method,$name)) {
+				$args[] = $this->binder->getBindingForAnnotation($clazz,$method,$name);
+			} else {
+				$parameterClazz = $dep->getClass();
+				if ($parameterClazz !== null && is_object($parameterClazz)) {
+					$args[] = $this->getInstance($parameterClazz->getName());
+				} else {
+					$args[] = null;
+				}
+			}
 		}
 		return $args;
 	}

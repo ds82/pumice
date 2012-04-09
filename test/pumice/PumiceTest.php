@@ -58,25 +58,34 @@ class ConcreteMultiModule extends Module {
 class ConcreteMultiAnnotationModule extends ConcreteMultiModule {
 
 	private $annotations;
+	private $valueAnnotations;
 
-	public function __construct($config, $annotations) {
+	public function __construct($config, $annotations, $valueAnnotations) {
 		parent::__construct($config);
 		if (!is_array($annotations)) throw new \RuntimeException('Please pass an array of config objects to this module');
 		$this->annotations = $annotations;
+		$this->valueAnnotations = $valueAnnotations;
 	}
 
 	public function configure() {
 		parent::configure();
 
-		$this->bindAnnotation('Annotation')->to('ClassOrObject')->in(Scope::SINGLETON);
-		$this->bindAnnotation('Annotation')->toValue('StringOrIntOrWhatEver');
+		//$this->bindAnnotation('Annotation')->to('ClassOrObject')->in(Scope::SINGLETON);
+		//$this->bindAnnotation('Annotation')->toValue('StringOrIntOrWhatEver');
 
 		foreach($this->annotations AS $conf) {
 			if (is_a($conf, '\stdClass')) {
-				$binding = $this->bind($conf->binding)->to($conf->impl);
+				$binding = $this->bindAnnotation($conf->annotation)->to($conf->value);
 				if ($conf->singleton) $binding->in(SCOPE::SINGLETON);
 			}
 		}
+
+		foreach($this->valueAnnotations AS $conf) {
+			if (is_a($conf, '\stdClass')) {
+				$binding = $this->bindAnnotation($conf->annotation)->toValue($conf->value);
+			}
+		}
+
 	}
 
 }
@@ -174,6 +183,20 @@ class PumiceTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(10, $third->c1->data->value);
 	}
 
+	public function testClassWithAnnotationIsValue() {
+
+		$values = array();
+		$conf = new \stdClass();
+		$conf->annotation = 'DefaultValueDataClass';
+		$conf->value = 100;
+		$values[] = $conf;
+
+		$module = new ConcreteMultiAnnotationModule(array(), array(), $values);
+		$uut = Pumice::createInjector($module);
+
+		$data = $uut->getInstance('examples\DataClass');
+		$this->assertEquals(100, $data->value);
+	}
 
 }
 
