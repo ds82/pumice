@@ -70,16 +70,12 @@ class ConcreteMultiAnnotationModule extends ConcreteMultiModule {
 	public function configure() {
 		parent::configure();
 
-		//$this->bindAnnotation('Annotation')->to('ClassOrObject')->in(Scope::SINGLETON);
-		//$this->bindAnnotation('Annotation')->toValue('StringOrIntOrWhatEver');
-
 		foreach($this->annotations AS $conf) {
 			if (is_a($conf, '\stdClass')) {
 				$binding = $this->bindAnnotation($conf->annotation)->to($conf->value);
 				if ($conf->singleton) $binding->in(SCOPE::SINGLETON);
 			}
 		}
-
 		foreach($this->valueAnnotations AS $conf) {
 			if (is_a($conf, '\stdClass')) {
 				$binding = $this->bindAnnotation($conf->annotation)->toValue($conf->value);
@@ -165,7 +161,6 @@ class PumiceTest extends \PHPUnit_Framework_TestCase {
 	public function testClassWithMultipleDependencies() {
 
 		$config = array();
-
 		$conf = new \stdClass();
 		$conf->binding = 'examples\DataClass';
 		$conf->impl = 'examples\DataClass';
@@ -197,6 +192,34 @@ class PumiceTest extends \PHPUnit_Framework_TestCase {
 		$data = $uut->getInstance('examples\DataClass');
 		$this->assertEquals(100, $data->value);
 	}
+
+	public function testReadMeExample() {
+
+		/* class binding */
+		$config = array();
+		$conf = new \stdClass();
+		$conf->binding = 'some\X';
+		$conf->impl = 'examples\SecondClass';
+		$conf->singleton = TRUE;
+		$config[] = $conf;
+
+
+		/* value binding */
+		$values = array();
+		$conf = new \stdClass();
+		$conf->annotation = 'DefaultValueDataClass';
+		$conf->value = 1000;
+		$values[] = $conf;
+
+		$module = new ConcreteMultiAnnotationModule($config, array(), $values);
+		$uut = Pumice::createInjector($module);
+
+		$second = $uut->getInstance('some\X');
+		$this->assertEquals(1000, $second->c1->data->value);
+
+
+	}
+	
 
 }
 
