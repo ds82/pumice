@@ -32,6 +32,11 @@ abstract class Module {
 		return $this->binder->bindAnnotation($annotation);
 	}
 
+	public function parentConfigure() {
+
+		$this->configure();
+	}
+
 	public abstract function configure();
 }
 

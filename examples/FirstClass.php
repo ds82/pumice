@@ -12,15 +12,15 @@ class FirstClass {
 	}
 
 	public function methodA() {
-		return __CLASS__ . ' methodA';
+		return __CLASS__ . ' ' . __FUNCTION__;
 	}
 
 	public function methodB() {
-		return __CLASS__ . ' methodB';
+		return __CLASS__ . ' ' . __FUNCTION__;
 	}
 
 	public function methodC() {
-		return __CLASS__ .  ' methodC';
+		return __CLASS__ . ' ' . __FUNCTION__;
 	}
 
 }

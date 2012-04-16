@@ -38,7 +38,7 @@ class Pumice {
 				throw new InvalidArgumentException('given parameter is no Pumice-module');
 			$this->modules[] = $module;
 			call_user_func_array(array($module, 'setBinder'), array($this->binder));
-			call_user_func(array($module, 'configure'));
+			call_user_func(array($module, 'parentConfigure'));
 		}
 
 	}
