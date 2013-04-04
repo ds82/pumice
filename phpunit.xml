@@ -1,2 +1,7 @@
-<phpunit bootstrap="Autoload.php" backupGlobals="false"
-         backupStaticAttributes="false" strict="false" verbose="true" />
+<phpunit 
+	bootstrap="Autoload.php"
+	backupGlobals="false"
+	backupStaticAttributes="false"
+	strict="false"
+	verbose="true"
+/>
