@@ -4,4 +4,10 @@
 	backupStaticAttributes="false"
 	strict="false"
 	verbose="true"
-/>
+>
+	<testsuites>
+		<testsuite name="all">
+			<directory>test</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>
