@@ -1,4 +1,5 @@
 # Pumice #
+[![Build Status](https://travis-ci.org/ds82/pumice.png?branch=master)](https://travis-ci.org/ds82/pumice)
 
 A dependency injection container for PHP with annoation support.
 Pumice is heavly inspired by [Google's Gucie](http://code.google.com/p/google-guice/) for Java. If you have already worked with Guice, you'll feel familiar with Pumice's syntax.
